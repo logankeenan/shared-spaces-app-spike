@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>Loading...</p>
+<script type="text/javascript" src="https://unpkg.com/morphdom@2.6.1/dist/morphdom-umd.js"></script>
+<script type="module">
+    import init, {app, Request} from './pkg/shared_space.js';
+
+    async function run() {
+        await init();
+        let request = new Request("path-name");
+        var htmlText = app(request);
+
+        morphdom(document.documentElement, htmlText);
+    }
+
+    run();
+</script>
+</body>
+</html>
