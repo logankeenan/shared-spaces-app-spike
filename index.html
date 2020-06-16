@@ -10,9 +10,57 @@
 <script type="module">
     import init, {app, Request} from './pkg/shared_space.js';
 
+    async function readAsDataUrl (blob) {
+        return new Promise((resolve) => {
+            var reader = new FileReader();
+
+            reader.onload = function () {
+                resolve(reader.result);
+            }
+
+            reader.readAsDataURL(blob);
+        });
+
+    }
+
+    document.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        let form = event.target.closest('form');
+        var formData = new FormData(form);
+
+        var object = await Array.from(formData).reduce(async function(acc, formDataEntry) {
+            var value = formDataEntry[1];
+            var key = formDataEntry[0];
+
+            if (value instanceof File) {
+                let fileBinaryString = await readAsDataUrl(value);
+
+                acc[key] = {
+                    name: value.name,
+                    content: fileBinaryString
+                }
+            } else  {
+                acc[key] = value;
+            }
+
+
+            return acc;
+
+        }, {});
+
+        var formBodyAsJSON = JSON.stringify(object);
+
+        let request = new Request("/files", "POST");
+        request.body = formBodyAsJSON;
+
+        app(request)
+    })
+
+
     async function run() {
         await init();
-        let request = new Request("path-name");
+        let request = new Request("/files", "GET");
         var htmlText = app(request);
 
         morphdom(document.documentElement, htmlText);

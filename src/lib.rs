@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 use crate::models::request::Request;
-use crate::controllers::file_controller::file_list;
+use crate::controllers::file_controller::{file_list, file_create};
 
 #[macro_use]
 extern crate serde_json;
@@ -17,7 +17,16 @@ extern "C" {
 
 #[wasm_bindgen]
 pub fn app(request: Request) -> String {
-    let markup = file_list(request);
+    if request.path == "/files" {
+        if request.method == "GET" {
+            let markup = file_list(request);
 
-    markup
+            return markup;
+        } else if request.method == "POST" {
+            file_create(request);
+        }
+    }
+
+
+    return "".to_string();
 }
