@@ -6,11 +6,20 @@
 </head>
 <body>
 <p>Loading...</p>
+<img src="" alt="" id="imageTest">
 <script type="text/javascript" src="https://unpkg.com/morphdom@2.6.1/dist/morphdom-umd.js"></script>
+<script type="text/javascript" src="https://unpkg.com/localforage@1.7.4/dist/localforage.js"></script>
+<script type="text/javascript" src="https://unpkg.com/js-md5@0.7.3/src/md5.js"></script>
 <script type="module">
     import init, {app, Request} from './pkg/shared_space.js';
 
-    async function readAsDataUrl (blob) {
+    localforage.config({
+        name: 'shared-space',
+        version: 1.0,
+        driver: localforage.INDEXEDDB
+    });
+
+    async function readAsDataUrl(blob) {
         return new Promise((resolve) => {
             var reader = new FileReader();
 
@@ -20,7 +29,32 @@
 
             reader.readAsDataURL(blob);
         });
+    }
 
+    async function readAsBinaryString(blob) {
+        return new Promise((resolve) => {
+            var reader = new FileReader();
+
+            reader.onload = function () {
+                resolve(reader.result);
+            }
+
+            reader.readAsBinaryString(blob);
+        });
+    }
+
+    async function processRequest(request) {
+
+        let response = await app(request);
+
+        if (response.status_code === "303") {
+            let redirectRequest = new Request(JSON.parse(response.headers).Location, "GET");
+
+            return processRequest(redirectRequest);
+
+        } else {
+            morphdom(document.documentElement, response.body);
+        }
     }
 
     document.addEventListener('submit', async function (event) {
@@ -29,22 +63,27 @@
         let form = event.target.closest('form');
         var formData = new FormData(form);
 
-        var object = await Array.from(formData).reduce(async function(acc, formDataEntry) {
+        var object = await Array.from(formData).reduce(async function (acc, formDataEntry) {
             var value = formDataEntry[1];
             var key = formDataEntry[0];
 
             if (value instanceof File) {
-                let fileBinaryString = await readAsDataUrl(value);
+                let blob = new Blob([value], {type: value.type});
+                let blobDataUrl = await readAsBinaryString(blob);
+                let hash = md5(blobDataUrl);
 
+                await localforage.setItem(hash, blob);
+                // File { name: "Screen Shot 2020-05-22 at 1.57.58 PM.png", lastModified: 1590173883832, webkitRelativePath: "", size: 110484, type: "image/png" }
                 acc[key] = {
                     name: value.name,
-                    content: fileBinaryString
+                    last_modified: value.lastModified,
+                    size: value.size,
+                    file_type: value.type,
+                    location: hash
                 }
-            } else  {
+            } else {
                 acc[key] = value;
             }
-
-
             return acc;
 
         }, {});
@@ -54,16 +93,17 @@
         let request = new Request("/files", "POST");
         request.body = formBodyAsJSON;
 
-        app(request)
+        await processRequest(request);
     })
 
 
     async function run() {
         await init();
         let request = new Request("/files", "GET");
-        var htmlText = app(request);
 
-        morphdom(document.documentElement, htmlText);
+        await processRequest(request);
+
+
     }
 
     run();

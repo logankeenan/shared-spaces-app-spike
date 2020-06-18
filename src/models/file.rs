@@ -1,5 +1,14 @@
+use uuid::Uuid;
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct File {
-    name: String,
-    //TODO this is probably the wrong impl and should store a location to the file later on
-    content: String,
+
+    #[serde(default = "crate::models::default_uuid")]
+    pub id: Uuid,
+    pub name: String,
+    // TODO Create serde parser so this'll work with NaiveDateTime
+    pub last_modified: i64,
+    pub size: i32,
+    pub file_type: String,
+    pub location: String
 }

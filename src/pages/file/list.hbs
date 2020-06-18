@@ -3,7 +3,7 @@
         <h1>
             Files
         </h1>
-        <div class="row justify-content-center">
+        <div class="row justify-content-center pb-4">
             <div class="col-lg-6">
                 <form action="/files" method="post" enctype="multipart/form-data">
                     <div class="form-group">
@@ -15,6 +15,38 @@
                     </div>
                 </form>
             </div>
+        </div>
+
+
+        <div class="container">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Last Modified</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each files as |file| }}
+                    <tr>
+                        <td>
+                            {{file.name}}
+                        </td>
+                        <td>
+                            {{file.size}} Bytes
+                        </td>
+                        <td>
+                            {{file.last_modified}}
+                        </td>
+                        <td>
+                            <a href="#">Preview</a>
+                        </td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
         </div>
     {{/inline}}
 {{/layout_page}}

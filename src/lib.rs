@@ -1,13 +1,18 @@
 use wasm_bindgen::prelude::*;
 use crate::models::request::Request;
 use crate::controllers::file_controller::{file_list, file_create};
+use crate::models::response::AppResponse;
 
 #[macro_use]
 extern crate serde_json;
 
+#[macro_use]
+extern crate serde_derive;
+
 mod controllers;
 mod models;
 mod factories;
+mod repositories;
 
 #[wasm_bindgen]
 extern "C" {
@@ -16,17 +21,21 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub fn app(request: Request) -> String {
+pub async fn app(request: Request) -> AppResponse {
     if request.path == "/files" {
         if request.method == "GET" {
-            let markup = file_list(request);
+            let response = file_list(request).await;
 
-            return markup;
+            return response;
         } else if request.method == "POST" {
-            file_create(request);
+            let response = file_create(request).await;
+            return response;
         }
     }
 
-
-    return "".to_string();
+    AppResponse {
+        status_code: "".to_string(),
+        headers: Default::default(),
+        body: None
+    }
 }
