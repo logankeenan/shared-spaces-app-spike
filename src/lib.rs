@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 use crate::models::request::Request;
-use crate::controllers::file_controller::{file_list, file_create};
+use crate::controllers::file_controller::{file_list, file_create, file_details};
 use crate::models::response::AppResponse;
 
 #[macro_use]
@@ -31,6 +31,11 @@ pub async fn app(request: Request) -> AppResponse {
             let response = file_create(request).await;
             return response;
         }
+    }
+
+    if request.path.starts_with("/files/") {
+        let response = file_details(request).await;
+        return response;
     }
 
     AppResponse {

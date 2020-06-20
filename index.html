@@ -53,7 +53,20 @@
             return processRequest(redirectRequest);
 
         } else {
-            morphdom(document.documentElement, response.body);
+            morphdom(document.documentElement, response.body, {
+                onNodeAdded: function (node) {
+                    if (node.nodeName === 'SCRIPT') {
+                        var script = document.createElement('script');
+
+                        if (node.src) {
+                            script.src = node.src;
+                        }
+
+                        script.innerHTML = node.innerHTML;
+                        node.replaceWith(script)
+                    }
+                }
+            });
         }
     }
 
@@ -73,7 +86,6 @@
                 let hash = md5(blobDataUrl);
 
                 await localforage.setItem(hash, blob);
-                // File { name: "Screen Shot 2020-05-22 at 1.57.58 PM.png", lastModified: 1590173883832, webkitRelativePath: "", size: 110484, type: "image/png" }
                 acc[key] = {
                     name: value.name,
                     last_modified: value.lastModified,
@@ -99,12 +111,27 @@
 
     async function run() {
         await init();
-        let request = new Request("/files", "GET");
+
+        let current_hash = window.location.hash;
+
+        if (!current_hash) {
+            window.location.hash = "#/files";
+
+            let request = new Request("/files", "GET");
+
+            await processRequest(request);
+        } else {
+            let request = new Request(current_hash.replace("#", ""), "GET");
+
+            await processRequest(request);
+        }
+    }
+
+    window.addEventListener('popstate', async function () {
+        let request = new Request(window.location.hash.replace("#", ""), "GET");
 
         await processRequest(request);
-
-
-    }
+    });
 
     run();
 </script>

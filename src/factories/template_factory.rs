@@ -4,10 +4,13 @@ use serde_json::Value;
 pub fn render(template_name: String, model: Value) -> String {
     let layout = include_str!("../pages/layout.hbs");
     let file_list = include_str!("../pages/file/list.hbs");
+    let file_details =  include_str!("../pages/file/details.hbs");
     let mut page_template = "";
 
     if template_name == "file/list" {
         page_template = file_list;
+    } else if template_name == "file/details" {
+        page_template = file_details;
     }
 
     let mut handlebars = Handlebars::new();

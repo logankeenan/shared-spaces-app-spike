@@ -1,0 +1,59 @@
+{{#> layout_page}}
+    {{#*inline "page_content"}}
+        <h1>
+            File Details
+        </h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-2">
+                    Name:
+                </div>
+                <div class="col-10">
+                    {{file.name}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    Last Modified:
+                </div>
+                <div class="col-10">
+                    {{file.last_modified}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    Size:
+                </div>
+                <div class="col-10">
+                    {{file.size}} Bytes
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    File Type:
+                </div>
+                <div class="col-10">
+                    {{file.file_type}}
+                </div>
+            </div>
+            <img class="mt-4 rounded shadow" width="100%" src="" alt="" id="imagePreview"
+                 data-file-location="{{file.location}}">
+        </div>
+        <script type="text/javascript">
+            (function () {
+                var elementById = document.getElementById('imagePreview');
+                var fileLocation = elementById.dataset.fileLocation;
+
+                localforage.getItem(fileLocation).then(function (blob) {
+                    var reader = new FileReader();
+
+                    reader.onload = function () {
+                        elementById.src = reader.result;
+                    }
+
+                    reader.readAsDataURL(blob);
+                });
+            })();
+        </script>
+    {{/inline}}
+{{/layout_page}}

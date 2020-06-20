@@ -2,10 +2,10 @@ use crate::models::file::File;
 use js_sys::{Promise, try_iter, ArrayIter, IntoIter};
 use wasm_bindgen_futures::JsFuture;
 use wasm_bindgen::prelude::*;
-use crate::log;
 use std::borrow::Borrow;
 use wasm_bindgen::__rt::core::convert::{TryFrom, Infallible};
 use serde_json::Error;
+use uuid::Uuid;
 
 #[wasm_bindgen]
 extern "C" {
@@ -42,6 +42,16 @@ pub async fn keys_from_local_forage() -> Vec<String> {
     }
 
     keys
+}
+
+pub async fn file_by_id(id: Uuid) -> File {
+    let files = select_all_files().await;
+
+    let file = files.into_iter().find(|file| {
+        file.id.eq(&id)
+    }).unwrap();
+
+    file
 }
 
 pub async fn select_all_files() -> Vec<File> {
