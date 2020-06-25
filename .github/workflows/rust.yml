@@ -19,4 +19,4 @@ jobs:
     - name: Install
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
     - name: Build
-      run: wasm-pack build --target web
+      run: wasm-pack build --target web --scope logankeenan
