@@ -11,10 +11,10 @@
 <script type="text/javascript" src="https://unpkg.com/localforage@1.7.4/dist/localforage.js"></script>
 <script type="text/javascript" src="https://unpkg.com/js-md5@0.7.3/src/md5.js"></script>
 <script type="module">
-    import init, {app, Request} from './pkg/shared_space.js';
+    import init, {app, Request} from './pkg/shared_space_app.js';
 
     localforage.config({
-        name: 'shared-space',
+        name: 'shared-space-app',
         version: 1.0,
         driver: localforage.INDEXEDDB
     });
