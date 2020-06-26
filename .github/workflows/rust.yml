@@ -21,6 +21,6 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         registry-url: 'https://npm.pkg.github.com'
-    - run: npm version ${{GITHUB_SHA}} && npm publish pkg
+    - run: npm version ${{ github.sha }} && npm publish pkg
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
