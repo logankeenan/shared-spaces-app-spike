@@ -16,6 +16,8 @@ struct FileListViewModel {
 }
 
 pub async fn file_list(_request: Request) -> AppResponse {
+    // check to see if a device exists
+
     let files = select_all_files().await;
     let view_model = FileListViewModel { files };
 
