@@ -23,7 +23,6 @@ pub async fn device_by_id(id: Uuid) -> Device {
 
 pub async fn local_device() -> Option<Device> {
     let devices = select_all_devices().await;
-    log(devices.len().to_string().as_str());
     let device = devices.into_iter().find(|device| {
         device.is_local_device.eq(&true)
     });
