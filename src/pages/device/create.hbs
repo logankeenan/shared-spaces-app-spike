@@ -1,0 +1,31 @@
+{{#> layout_page}}
+    {{#*inline "page_content"}}
+        <div class="row justify-content-center pb-4">
+            <div class="col-lg-6">
+                <h1>
+                    Create Device
+                </h1>
+                <p>
+                    What device are you currently using? Give it a name.
+                </p>
+                <form action="/devices" method="post">
+                    <input type="hidden" value="{{form.id}}" name="id">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input
+                                type="text"
+                                class="form-control"
+                                value="{{form.name}}"
+                                id="name"
+                                name="name"
+                                placeholder="Ex: Laptop"
+                        >
+                    </div>
+                    <div class="text-right">
+                        <input type="submit" class="btn btn-primary" value="Save">
+                    </div>
+                </form>
+            </div>
+        </div>
+    {{/inline}}
+{{/layout_page}}

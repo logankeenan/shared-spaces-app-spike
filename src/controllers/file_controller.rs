@@ -9,6 +9,9 @@ use uuid::Uuid;
 use crate::models::response::AppResponse;
 use wasm_bindgen::__rt::std::collections::HashMap;
 use std::str::FromStr;
+use crate::repositories::device_repository::local_device;
+use crate::models::device::Device;
+use crate::factories::app_response_factory::redirect_app_response;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileListViewModel {
@@ -16,21 +19,29 @@ struct FileListViewModel {
 }
 
 pub async fn file_list(_request: Request) -> AppResponse {
-    // check to see if a device exists
 
-    let files = select_all_files().await;
-    let view_model = FileListViewModel { files };
+    let device_option = local_device().await;
 
-    let model = json!(view_model);
+    match device_option {
+        None => {
+            redirect_app_response("/devices/create".to_string())
+        },
+        Some(_) => {
+            let files = select_all_files().await;
+            let view_model = FileListViewModel { files };
 
-    let string = render("file/list".to_string(), model);
-    let response = AppResponse {
-        status_code: 200.to_string(),
-        headers: None,
-        body: Some(string.clone())
-    };
+            let model = json!(view_model);
 
-    response
+            let string = render("file/list".to_string(), model);
+            let response = AppResponse {
+                status_code: 200.to_string(),
+                headers: None,
+                body: Some(string.clone())
+            };
+
+            response
+        },
+    }
 }
 #[derive(Debug, Serialize, Deserialize)]
 struct FileForm {
@@ -44,14 +55,7 @@ pub async fn file_create(_request: Request) -> AppResponse {
 
     insert_file(result.file).await;
 
-    let mut headers: HashMap<String, String> = HashMap::new();
-    headers.insert("Location".to_string(), "/files".to_string());
-
-    AppResponse {
-        status_code: 303.to_string(),
-        headers: Some(json!(headers).to_string()),
-        body: None
-    }
+    redirect_app_response("/files".to_string())
 }
 
 #[derive(Debug, Serialize, Deserialize)]
