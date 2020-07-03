@@ -14,6 +14,7 @@ mod controllers;
 mod models;
 mod factories;
 mod repositories;
+mod adapters;
 
 #[wasm_bindgen]
 extern "C" {
@@ -26,6 +27,7 @@ pub async fn app(request: Request) -> AppResponse {
 
     log(format!("request.path: {}", request.path).as_str());
     log(format!("request.method: {}", request.method).as_str());
+
     if request.path == "/files" {
         if request.method == "GET" {
             let response = file_list(request).await;

@@ -1,0 +1,1 @@
+pub mod localforage_adapter;

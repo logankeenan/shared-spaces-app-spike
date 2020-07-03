@@ -6,7 +6,7 @@ use std::borrow::Borrow;
 use wasm_bindgen::__rt::core::convert::{TryFrom, Infallible};
 use serde_json::Error;
 use uuid::Uuid;
-use crate::repositories::localforage_adapter::{json_entities_by_key_prefix, insert_json_string};
+use crate::adapters::localforage_adapter::{json_entities_by_key_prefix, insert_json_string};
 
 pub async fn insert_file(file: File) {
     let file_as_json = serde_json::to_string(&file).unwrap();

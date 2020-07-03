@@ -1,8 +1,8 @@
 use crate::models::device::Device;
-use crate::repositories::localforage_adapter::{insert_json_string, json_entities_by_key_prefix};
 use uuid::Uuid;
 use serde_json::Error;
 use crate::log;
+use crate::adapters::localforage_adapter::{insert_json_string, json_entities_by_key_prefix};
 
 pub async fn insert_device(device: Device) {
     let device_as_json = serde_json::to_string(&device).unwrap();
