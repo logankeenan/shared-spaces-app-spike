@@ -34,6 +34,7 @@ pub async fn app(request: Request) -> AppResponse {
         None => {},
         Some(device) => {
             let device_name_encoded = percent_encode(device.name.as_bytes(), NON_ALPHANUMERIC);
+            // TODO this url really needs to use the correct host/port/protocol
             let url = format!("ws://localhost:3000/ws?id={}&name={}", device.id.to_simple(), device_name_encoded);
 
             create_web_socket_connection(url);
@@ -87,4 +88,20 @@ pub fn websocket_on_message(message: String)  {
 #[wasm_bindgen]
 pub fn websocket_on_close()  {
     log("web socket closed")
+}
+
+
+#[wasm_bindgen]
+pub fn webrtc_on_signal(message: String)  {
+    log("webrtc on signal")
+}
+
+#[wasm_bindgen]
+pub fn webrtc_on_connect(message: String)  {
+    log("webrtc_on_connect")
+}
+
+#[wasm_bindgen]
+pub fn webrtc_on_message(message: String)  {
+    log("webrtc_on_message")
 }
