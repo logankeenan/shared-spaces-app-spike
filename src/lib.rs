@@ -7,7 +7,7 @@ use crate::adapters::websocket_adapter::{create_web_socket_connection, send_mess
 use crate::repositories::device_repository::local_device;
 use crate::models::device::Device;
 use percent_encoding::{percent_encode, NON_ALPHANUMERIC};
-use crate::controllers::webrtc_connection_controller::{create_offer_route, accept_offer_route, accept_answer_route};
+use crate::controllers::webrtc_connection_controller::{create_offer_route, accept_offer_route, accept_answer_route, accept_offer_route_regex, accept_answer_route_regex};
 use crate::adapters::webrtc_adapter::create_answer;
 use regex::Regex;
 
@@ -31,8 +31,6 @@ extern "C" {
 
 #[wasm_bindgen]
 pub async fn app(request: Request) -> AppResponse {
-
-    Regex::new(r#"/webrtc-connection/.*/accept-offer"#).unwrap();
     log(format!("request path: {}", request.path).as_str());
 
     let device_option = local_device().await;
@@ -78,13 +76,11 @@ pub async fn app(request: Request) -> AppResponse {
         return create_offer_route(request).await;
     }
 
-    let accept_offer_regex = Regex::new(r#"/webrtc-connection/.*/accept-offer"#).unwrap();
-    if accept_offer_regex.is_match(request.path.as_str()) {
+    if accept_offer_route_regex().is_match(request.path.as_str()) {
         return accept_offer_route(request).await;
     }
 
-    let accept_answer_regex = Regex::new(r#"/webrtc-connection/.*/accept-answer"#).unwrap();
-    if accept_answer_regex.is_match(request.path.as_str()) {
+    if accept_answer_route_regex().is_match(request.path.as_str()) {
         return accept_answer_route(request).await;
     }
 

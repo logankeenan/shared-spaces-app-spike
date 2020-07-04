@@ -33,7 +33,6 @@ pub async fn websocket_on_message(message: String) {
             log(string.as_str());
         },
     }
-    log(format!("websocket_on_message: {}", message).as_str());
 }
 
 #[wasm_bindgen]
