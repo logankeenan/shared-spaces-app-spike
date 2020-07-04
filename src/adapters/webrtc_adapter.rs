@@ -31,7 +31,7 @@ pub async fn create_offer(device: Device) -> String {
 
 pub async fn create_answer(device: Device, offer: String) -> String {
     let promise: Promise = createSimplePeer(
-        "true".to_string().as_str(),
+        "false".to_string().as_str(),
         device.id.to_string().as_str(),
         offer.as_str()
     );
