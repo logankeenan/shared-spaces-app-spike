@@ -1,7 +1,7 @@
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Device {
     #[serde(default = "crate::models::default_uuid")]
     pub id: Uuid,

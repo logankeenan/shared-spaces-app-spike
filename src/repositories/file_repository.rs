@@ -10,7 +10,7 @@ use crate::adapters::localforage_adapter::{json_entities_by_key_prefix, insert_j
 
 pub async fn insert_file(file: File) {
     let file_as_json = serde_json::to_string(&file).unwrap();
-    let key = format!("file:{}", file.id.to_simple());
+    let key = format!("file:{}", file.id.to_string());
 
     insert_json_string(file_as_json.to_string(), key.to_string()).await;
 }

@@ -6,7 +6,7 @@ use crate::adapters::localforage_adapter::{insert_json_string, json_entities_by_
 
 pub async fn insert_device(device: Device) {
     let device_as_json = serde_json::to_string(&device).unwrap();
-    let key = format!("device:{}", device.id.to_simple());
+    let key = format!("device:{}", device.id.to_string());
 
     insert_json_string(device_as_json.to_string(), key.to_string()).await;
 }

@@ -1,6 +1,7 @@
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Request {
     pub(crate) path: String,
     pub(crate) method: String,
