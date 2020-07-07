@@ -1,4 +1,4 @@
-use crate::models::request::Request;
+use crate::models::request::AppRequest;
 use handlebars::{Handlebars, TemplateRenderError};
 use wasm_bindgen::__rt::std::alloc::handle_alloc_error;
 use crate::factories::template_factory::render;
@@ -18,7 +18,7 @@ struct FileListViewModel {
     files: Vec<File>
 }
 
-pub async fn file_list(_request: Request) -> AppResponse {
+pub async fn file_list(_request: AppRequest) -> AppResponse {
 
     let device_option = local_device().await;
 
@@ -50,7 +50,7 @@ struct FileForm {
 
 // TODO add controller method to handle the file
 //  This should take in the file and save the file to storage
-pub async fn file_create(_request: Request) -> AppResponse {
+pub async fn file_create(_request: AppRequest) -> AppResponse {
     let result: FileForm = serde_json::from_str(_request.body.as_str()).unwrap();
 
     insert_file(result.file).await;
@@ -63,7 +63,7 @@ pub struct FileDetailsViewModel {
     file: File
 }
 
-pub async fn file_details(request: Request) -> AppResponse{
+pub async fn file_details(request: AppRequest) -> AppResponse{
     let uuid_as_string = request.path.replace("/files/", "");
     let file_id = Uuid::from_str(uuid_as_string.as_str()).unwrap();
     let file = file_by_id(file_id).await;

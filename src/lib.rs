@@ -1,5 +1,5 @@
 use wasm_bindgen::prelude::*;
-use crate::models::request::Request;
+use crate::models::request::AppRequest;
 use crate::controllers::file_controller::{file_list, file_create, file_details};
 use crate::models::response::AppResponse;
 use crate::controllers::device_controller::{create_device_route, save_device_route};
@@ -31,7 +31,7 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub async fn app(request: Request) -> AppResponse {
+pub async fn app(request: AppRequest) -> AppResponse {
     log(format!("request path: {}", request.path).as_str());
 
     let device_option = local_device().await;

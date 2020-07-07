@@ -2,7 +2,7 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Request {
+pub struct AppRequest {
     pub(crate) path: String,
     pub(crate) method: String,
     pub(crate) body: String,
@@ -12,10 +12,10 @@ pub struct Request {
 // TODO add enum with the method types GET POST for now
 // TODO add content TYPE for the request application/json for the posting of the file
 #[wasm_bindgen]
-impl Request {
+impl AppRequest {
     #[wasm_bindgen(constructor)]
-    pub fn new(path: String, method: String) -> Request{
-        Request {
+    pub fn new(path: String, method: String) -> AppRequest {
+        AppRequest {
             path: path.into(),
             method: method.into(),
             body: "".to_string()

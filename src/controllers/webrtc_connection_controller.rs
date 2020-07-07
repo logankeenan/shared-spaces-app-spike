@@ -1,4 +1,4 @@
-use crate::models::request::Request;
+use crate::models::request::AppRequest;
 use crate::models::device::Device;
 use crate::adapters::webrtc_adapter::{create_offer, create_answer, accept_answer};
 use crate::repositories::device_repository::local_device;
@@ -21,7 +21,7 @@ struct AcceptAnswerBody {
     pub from_device: Device,
 }
 
-pub async fn create_offer_route(request: Request) -> AppResponse {
+pub async fn create_offer_route(request: AppRequest) -> AppResponse {
     let device_to_send_offer: Device = serde_json::from_str(request.body.as_str()).unwrap();
     let from_device = local_device().await.unwrap();
     let offer = create_offer(device_to_send_offer.clone()).await;
@@ -30,7 +30,7 @@ pub async fn create_offer_route(request: Request) -> AppResponse {
         offer,
         from_device,
     };
-    let app_request = Request {
+    let app_request = AppRequest {
         path: path.to_string(),
         method: "POST".to_string(),
         body: json!(body).to_string(),
@@ -47,7 +47,7 @@ pub async fn create_offer_route(request: Request) -> AppResponse {
 
 
 
-fn accept_offer_route_path_param(request: Request) -> String {
+fn accept_offer_route_path_param(request: AppRequest) -> String {
     let captures = accept_offer_route_regex().captures(request.path.as_str()).unwrap();
 
     captures.name("device_id").unwrap().as_str().to_string()
@@ -56,7 +56,7 @@ pub fn accept_offer_route_regex() -> Regex {
     Regex::new(r"/webrtc-connection/(?P<device_id>.*)/accept-offer").unwrap()
 }
 
-pub async fn accept_offer_route(request: Request) -> AppResponse {
+pub async fn accept_offer_route(request: AppRequest) -> AppResponse {
     let accept_offer_body: AcceptOfferBody = serde_json::from_str(request.body.as_str()).unwrap();
     let request_for_local_device_id = accept_offer_route_path_param(request);
     let device_for = Uuid::from_str(request_for_local_device_id.as_str()).unwrap();
@@ -74,7 +74,7 @@ pub async fn accept_offer_route(request: Request) -> AppResponse {
 
         let path = format!("/webrtc-connection/{}/accept-answer", accept_offer_body.from_device.id.to_string());
 
-        let app_request = Request {
+        let app_request = AppRequest {
             path: path.to_string(),
             method: "POST".to_string(),
             body: json!(accept_answer_body).to_string(),
@@ -91,7 +91,7 @@ pub async fn accept_offer_route(request: Request) -> AppResponse {
 }
 
 
-fn accept_answer_route_path_param(request: Request) -> String {
+fn accept_answer_route_path_param(request: AppRequest) -> String {
     let captures = accept_answer_route_regex().captures(request.path.as_str()).unwrap();
 
     captures.name("device_id").unwrap().as_str().to_string()
@@ -101,7 +101,7 @@ pub fn accept_answer_route_regex() -> Regex {
     Regex::new(r"/webrtc-connection/(?P<device_id>.*)/accept-answer").unwrap()
 }
 
-pub async fn accept_answer_route(request: Request) -> AppResponse {
+pub async fn accept_answer_route(request: AppRequest) -> AppResponse {
     let accept_answer_body: AcceptAnswerBody = serde_json::from_str(request.body.as_str()).unwrap();
     let request_for_local_device_id = accept_answer_route_path_param(request);
     let device_for = Uuid::from_str(request_for_local_device_id.as_str()).unwrap();

@@ -1,5 +1,5 @@
 use crate::models::response::AppResponse;
-use crate::models::request::Request;
+use crate::models::request::AppRequest;
 
 
 /*
@@ -11,7 +11,7 @@ use crate::models::request::Request;
 
  */
 
-pub async fn send_request(request: Request) -> AppResponse {
+pub async fn send_request(request: AppRequest) -> AppResponse {
 
     AppResponse {
         status_code: "".to_string(),

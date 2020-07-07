@@ -1,4 +1,4 @@
-use crate::models::request::Request;
+use crate::models::request::AppRequest;
 use crate::models::device::Device;
 use crate::factories::template_factory::render;
 use crate::models::response::AppResponse;
@@ -12,7 +12,7 @@ struct CreateDeviceViewModel {
     form: Device
 }
 
-pub async fn create_device_route(_request: Request) -> AppResponse {
+pub async fn create_device_route(_request: AppRequest) -> AppResponse {
     let create_device_view_model = CreateDeviceViewModel {
         form: Device {
             id: Uuid::new_v4(),
@@ -29,7 +29,7 @@ pub async fn create_device_route(_request: Request) -> AppResponse {
     }
 }
 
-pub async fn save_device_route(request: Request) -> AppResponse {
+pub async fn save_device_route(request: AppRequest) -> AppResponse {
     let mut device: Device = serde_json::from_str(request.body.as_str()).unwrap();
 
     device.is_local_device = true;
