@@ -22,6 +22,7 @@ mod models;
 mod factories;
 mod repositories;
 mod adapters;
+mod services;
 
 #[wasm_bindgen]
 extern "C" {
@@ -99,6 +100,8 @@ pub fn webrtc_on_signal(message: String)  {
 
 #[wasm_bindgen]
 pub fn webrtc_on_connect(message: String)  {
+    // TODO I should recieve
+
     log("webrtc_on_connect")
 }
 
