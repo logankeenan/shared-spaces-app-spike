@@ -1,5 +1,4 @@
 use uuid::Uuid;
-use wasm_bindgen::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Device {

@@ -1,10 +1,13 @@
 use crate::models::app_event::AppEvent;
 use crate::models::device::Device;
-use crate::repositories::device_repository::local_device;
+use crate::repositories::device_repository::{local_device, device_by_id, insert_device};
 use crate::adapters::webrtc_adapter::{create_offer, create_answer, accept_answer};
 use crate::adapters::websocket_adapter::send_message_via_websocket;
 use uuid::Uuid;
 use wasm_bindgen::__rt::core::str::FromStr;
+use crate::models::device_status::DeviceStatus;
+use wasm_bindgen::__rt::std::time::Instant;
+use crate::repositories::device_status_repository::{insert_device_status, by_device_id, update_device_status};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct AcceptOfferBody {
@@ -25,6 +28,20 @@ pub async fn websocket_device_connected_listener(event: AppEvent) {
     let device_to_send_offer: Device = serde_json::from_str(event.body.as_str()).unwrap();
     let from_device = local_device().await.unwrap();
     let offer = create_offer(device_to_send_offer.clone()).await;
+    let device_to_send_offer_already_exists = device_by_id(device_to_send_offer.id).await;
+
+    match device_to_send_offer_already_exists {
+        None => {
+            insert_device(device_to_send_offer.clone()).await;
+            let device_status = DeviceStatus {
+                id: Uuid::new_v4(),
+                device_id: device_to_send_offer.id.clone(),
+                is_connected: false
+            };
+            insert_device_status(device_status).await;
+        },
+        Some(_) => {},
+    }
 
     let body = AcceptOfferBody {
         offer,
@@ -67,4 +84,21 @@ pub async fn web_socket_device_accept_answer_listener(event: AppEvent) {
     if local_device.id.eq(&accept_answer_body.to_device.id) {
         accept_answer(accept_answer_body.answer.to_string(), accept_answer_body.from_device);
     }
+}
+
+pub async fn web_socket_device_disconnected_listener(event: AppEvent) {
+    let device_that_disconnected: Device = serde_json::from_str(event.body.as_str()).unwrap();
+    let device_status_option = by_device_id(device_that_disconnected.id).await;
+
+    match device_status_option {
+        None => {
+            // this should never happen
+        },
+        Some(mut device_status) => {
+            device_status.is_connected = false;
+
+            update_device_status(device_status).await;
+        },
+    }
+
 }

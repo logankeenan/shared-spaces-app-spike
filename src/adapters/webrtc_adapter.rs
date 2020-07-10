@@ -2,6 +2,11 @@ use wasm_bindgen::prelude::*;
 use js_sys::{Promise, try_iter, ArrayIter, IntoIter};
 use wasm_bindgen_futures::JsFuture;
 use crate::models::device::Device;
+use crate::log;
+use uuid::Uuid;
+use wasm_bindgen::__rt::core::str::FromStr;
+use crate::repositories::device_status_repository::{by_device_id, update_device_status};
+use crate::models::device_status::DeviceStatus;
 
 #[wasm_bindgen]
 extern "C" {
@@ -44,4 +49,32 @@ pub async fn create_answer(device: Device, offer: String) -> String {
 
 pub fn accept_answer(answer: String, device: Device) {
     signalToSimplePeer(answer.as_str(), device.id.to_string().as_str());
+}
+
+#[wasm_bindgen]
+pub fn webrtc_on_signal(message: String)  {
+    log("webrtc on signal")
+}
+
+#[wasm_bindgen]
+pub async fn webrtc_on_connect(device_id_string: String)  {
+    //TODO this should probably go in some sort of webrtc listener
+    let device_id = Uuid::from_str(device_id_string.as_str()).unwrap();
+
+    let device_option = by_device_id(device_id).await;
+
+    match device_option {
+        None => {
+            // This should never occur
+        },
+        Some(mut device_status) => {
+            device_status.is_connected = true;
+            update_device_status(device_status);
+        },
+    }
+}
+
+#[wasm_bindgen]
+pub fn webrtc_on_message(message: String)  {
+    log("webrtc_on_message")
 }

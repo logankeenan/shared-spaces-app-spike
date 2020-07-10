@@ -98,20 +98,3 @@ pub async fn app(request: AppRequest) -> AppResponse {
         body: None,
     }
 }
-
-#[wasm_bindgen]
-pub fn webrtc_on_signal(message: String)  {
-    log("webrtc on signal")
-}
-
-#[wasm_bindgen]
-pub fn webrtc_on_connect(message: String)  {
-    // TODO I should recieve
-
-    log("webrtc_on_connect")
-}
-
-#[wasm_bindgen]
-pub fn webrtc_on_message(message: String)  {
-    log("webrtc_on_message")
-}

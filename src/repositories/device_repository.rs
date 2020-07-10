@@ -11,12 +11,12 @@ pub async fn insert_device(device: Device) {
     insert_json_string(device_as_json.to_string(), key.to_string()).await;
 }
 
-pub async fn device_by_id(id: Uuid) -> Device {
+pub async fn device_by_id(id: Uuid) -> Option<Device> {
     let devices = select_all_devices().await;
 
     let device = devices.into_iter().find(|device| {
         device.id.eq(&id)
-    }).unwrap();
+    });
 
     device
 }
