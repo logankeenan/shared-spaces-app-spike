@@ -2,6 +2,7 @@ use crate::models::device_status::DeviceStatus;
 use serde_json::Error;
 use crate::adapters::localforage_adapter::{insert_json_string, json_entities_by_key_prefix};
 use uuid::Uuid;
+use crate::log;
 
 pub async fn insert_device_status(device_status: DeviceStatus) {
     let device_status_as_json = serde_json::to_string(&device_status).unwrap();

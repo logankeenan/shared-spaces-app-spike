@@ -69,7 +69,7 @@ pub async fn webrtc_on_connect(device_id_string: String)  {
         },
         Some(mut device_status) => {
             device_status.is_connected = true;
-            update_device_status(device_status);
+            update_device_status(device_status).await;
         },
     }
 }

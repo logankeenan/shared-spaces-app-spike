@@ -92,6 +92,7 @@ pub async fn web_socket_device_disconnected_listener(event: AppEvent) {
 
     match device_status_option {
         None => {
+
             // this should never happen
         },
         Some(mut device_status) => {

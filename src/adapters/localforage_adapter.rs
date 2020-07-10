@@ -38,9 +38,9 @@ pub async fn keys_from_local_forage() -> Vec<String> {
 // TODO this should probably leveerage generics, but I don't want o figure that out right now
 pub async fn json_entities_by_key_prefix(prefix: String) -> Vec<String> {
     let keys = keys_from_local_forage().await;
-
+    let entity_key = format!("{}:", prefix.as_str());
     let keys_for_file_records: Vec<String> = keys.into_iter()
-        .filter(|key| key.starts_with(prefix.as_str()))
+        .filter(|key| key.starts_with(entity_key.as_str()))
         .collect();
     let mut vec = Vec::new();
 
