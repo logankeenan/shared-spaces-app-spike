@@ -1,9 +1,6 @@
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::__rt::std::collections::HashMap;
 
-
-
-
 #[wasm_bindgen]
 pub struct AppResponse {
     pub(crate) status_code: String,

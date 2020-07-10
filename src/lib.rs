@@ -7,9 +7,10 @@ use crate::adapters::websocket_adapter::{create_web_socket_connection, send_mess
 use crate::repositories::device_repository::local_device;
 use crate::models::device::Device;
 use percent_encoding::{percent_encode, NON_ALPHANUMERIC};
-use crate::controllers::webrtc_connection_controller::{create_offer_route, accept_offer_route, accept_answer_route, accept_offer_route_regex, accept_answer_route_regex};
 use crate::adapters::webrtc_adapter::create_answer;
 use regex::Regex;
+use crate::models::app_event::AppEvent;
+use crate::listeners::websocket_listener::{websocket_device_accept_offer_listener, web_socket_device_accept_answer_listener, websocket_device_connected_listener};
 
 #[macro_use]
 extern crate serde_json;
@@ -23,11 +24,29 @@ mod factories;
 mod repositories;
 mod adapters;
 mod services;
+mod listeners;
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+}
+
+#[wasm_bindgen]
+pub async fn app_event(event: AppEvent) {
+
+    if event.event_type.eq("WEB_SOCKET_DEVICE_CONNECTED") {
+        websocket_device_connected_listener(event.clone()).await;
+    }
+
+    if event.event_type.eq("WEB_SOCKET_ACCEPT_OFFER") {
+        websocket_device_accept_offer_listener(event.clone()).await;
+    }
+
+
+    if event.event_type.eq("WEB_SOCKET_ACCEPT_ANSWER") {
+        web_socket_device_accept_answer_listener(event).await;
+    }
 }
 
 #[wasm_bindgen]
@@ -72,19 +91,6 @@ pub async fn app(request: AppRequest) -> AppResponse {
             return create_device_route(request).await;
         }
     }
-
-    if request.path.eq("/webrtc-connection/create-offer") {
-        return create_offer_route(request).await;
-    }
-
-    if accept_offer_route_regex().is_match(request.path.as_str()) {
-        return accept_offer_route(request).await;
-    }
-
-    if accept_answer_route_regex().is_match(request.path.as_str()) {
-        return accept_answer_route(request).await;
-    }
-
 
     AppResponse {
         status_code: "".to_string(),

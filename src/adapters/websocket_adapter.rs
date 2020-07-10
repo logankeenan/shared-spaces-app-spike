@@ -1,9 +1,9 @@
 use wasm_bindgen::prelude::*;
 use js_sys::{Promise, try_iter, ArrayIter, IntoIter};
 use wasm_bindgen_futures::JsFuture;
-use crate::{log, app};
-use crate::models::request::AppRequest;
+use crate::{log, app, app_event};
 use serde_json::Error;
+use crate::models::app_event::AppEvent;
 
 
 #[wasm_bindgen]
@@ -22,12 +22,12 @@ pub fn websocket_on_open() {
 
 #[wasm_bindgen]
 pub async fn websocket_on_message(message: String) {
-    let result: Result<AppRequest, Error> = serde_json::from_str(message.as_str());
+    let result: Result<AppEvent, Error> = serde_json::from_str(message.as_str());
 
     match result {
-        Ok(request) => {
-            app(request).await;
-        },
+        Ok(event) => {
+            app_event(event).await;
+        }
         Err(_) => {
             let string = format!("An error occurred websocket_on_message: {}", message);
             log(string.as_str());
