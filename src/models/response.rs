@@ -2,6 +2,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::__rt::std::collections::HashMap;
 
 #[wasm_bindgen]
+#[derive(Deserialize, Serialize)]
 pub struct AppResponse {
     pub(crate) status_code: String,
     pub(crate) headers: Option<String>,
@@ -17,6 +18,17 @@ impl AppResponse {
             headers: None,
             body: None
         }
+    }
+
+    #[wasm_bindgen(method)]
+    pub fn as_json_string(&self) -> String {
+        let response = AppResponse {
+            status_code: self.status_code.clone(),
+            headers: self.headers.clone(),
+            body: self.body.clone()
+        };
+
+        json!(response).to_string()
     }
 
     #[wasm_bindgen(getter)]

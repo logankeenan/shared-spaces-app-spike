@@ -5,6 +5,7 @@ use wasm_bindgen::prelude::*;
 pub struct AppRequest {
     pub(crate) path: String,
     pub(crate) method: String,
+    // TODO this should actually be an option
     pub(crate) body: String,
 }
 

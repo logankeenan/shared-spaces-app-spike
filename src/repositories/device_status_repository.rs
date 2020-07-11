@@ -33,6 +33,14 @@ pub async fn select_all_device_statuses() -> Vec<DeviceStatus> {
     vec
 }
 
+pub async fn select_all_connected_device_statuses() -> Vec<DeviceStatus> {
+    let device_statuses = select_all_device_statuses().await;
+
+    device_statuses.into_iter().filter(|device_status| {
+        device_status.is_connected.eq(&true)
+    }).collect()
+}
+
 pub async fn update_device_status(device_status: DeviceStatus) {
     insert_device_status(device_status).await;
 }

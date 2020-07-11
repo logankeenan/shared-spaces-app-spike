@@ -10,5 +10,5 @@ pub struct File {
     pub last_modified: i64,
     pub size: i32,
     pub file_type: String,
-    pub location: String
+    pub location: String,
 }

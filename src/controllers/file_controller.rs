@@ -12,22 +12,63 @@ use std::str::FromStr;
 use crate::repositories::device_repository::local_device;
 use crate::models::device::Device;
 use crate::factories::app_response_factory::redirect_app_response;
+use crate::adapters::webrtc_adapter::send_webrtc_message;
+use crate::repositories::device_status_repository::select_all_connected_device_statuses;
+use crate::log;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileListViewModel {
     files: Vec<File>
 }
 
-pub async fn file_list(_request: AppRequest) -> AppResponse {
+pub async fn files_api_route(request: AppRequest) -> AppResponse {
+    let files = select_all_files().await;
 
+    let view_model = FileListViewModel { files };
+    AppResponse {
+        status_code: 200.to_string(),
+        headers: None,
+        body: Some(json!(view_model).to_string()),
+    }
+}
+
+pub async fn files_route(_request: AppRequest) -> AppResponse {
     let device_option = local_device().await;
 
     match device_option {
         None => {
             redirect_app_response("/devices/create".to_string())
-        },
+        }
         Some(_) => {
-            let files = select_all_files().await;
+            let mut files:Vec<File> = Vec::new();
+            log("before select_all_connected_device_statuses");
+            let device_statuses = select_all_connected_device_statuses().await;
+            for device_status in device_statuses {
+                let request = AppRequest {
+                    path: "/api/files".to_string(),
+                    method: "GET".to_string(),
+                    body: "".to_string(),
+                };
+
+                log("before send webrtc message");
+
+                let app_response = send_webrtc_message(
+                    request,
+                    device_status.device_id,
+                ).await;
+
+                let result : Result<FileListViewModel, Error>  = serde_json::from_str(app_response.body.unwrap().as_str());
+                let remote_files = result.unwrap();
+                for file in remote_files.files {
+                    files.push(file)
+                }
+            }
+
+            let local_files = select_all_files().await;
+            for file in local_files {
+                files.push(file)
+            }
+
             let view_model = FileListViewModel { files };
 
             let model = json!(view_model);
@@ -36,13 +77,14 @@ pub async fn file_list(_request: AppRequest) -> AppResponse {
             let response = AppResponse {
                 status_code: 200.to_string(),
                 headers: None,
-                body: Some(string.clone())
+                body: Some(string.clone()),
             };
 
             response
-        },
+        }
     }
 }
+
 #[derive(Debug, Serialize, Deserialize)]
 struct FileForm {
     file: File
@@ -50,7 +92,7 @@ struct FileForm {
 
 // TODO add controller method to handle the file
 //  This should take in the file and save the file to storage
-pub async fn file_create(_request: AppRequest) -> AppResponse {
+pub async fn file_create_route(_request: AppRequest) -> AppResponse {
     let result: FileForm = serde_json::from_str(_request.body.as_str()).unwrap();
 
     insert_file(result.file).await;
@@ -63,7 +105,7 @@ pub struct FileDetailsViewModel {
     file: File
 }
 
-pub async fn file_details(request: AppRequest) -> AppResponse{
+pub async fn file_details_route(request: AppRequest) -> AppResponse {
     let uuid_as_string = request.path.replace("/files/", "");
     let file_id = Uuid::from_str(uuid_as_string.as_str()).unwrap();
     let file = file_by_id(file_id).await;
@@ -74,7 +116,7 @@ pub async fn file_details(request: AppRequest) -> AppResponse{
     AppResponse {
         status_code: 200.to_string(),
         headers: None,
-        body: Some(markup)
+        body: Some(markup),
     }
 }
 

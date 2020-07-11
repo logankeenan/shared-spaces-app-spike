@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 use crate::models::request::AppRequest;
-use crate::controllers::file_controller::{file_list, file_create, file_details};
+use crate::controllers::file_controller::{files_route, file_create_route, file_details_route, files_api_route};
 use crate::models::response::AppResponse;
 use crate::controllers::device_controller::{create_device_route, save_device_route};
 use crate::adapters::websocket_adapter::{create_web_socket_connection, send_message_via_websocket};
@@ -78,19 +78,24 @@ pub async fn app(request: AppRequest) -> AppResponse {
         },
     }
 
+    if request.path == "/api/files" {
+        let response = files_api_route(request).await;
+        return response;
+    }
+
     if request.path == "/files" {
         if request.method == "GET" {
-            let response = file_list(request).await;
+            let response = files_route(request).await;
 
             return response;
         } else if request.method == "POST" {
-            let response = file_create(request).await;
+            let response = file_create_route(request).await;
             return response;
         }
     }
 
     if request.path.starts_with("/files/") {
-        let response = file_details(request).await;
+        let response = file_details_route(request).await;
         return response;
     }
 
