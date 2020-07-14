@@ -63,8 +63,6 @@ pub async fn app_start() {
 
 #[wasm_bindgen]
 pub async fn app(request: AppRequest) -> AppResponse {
-    log(format!("request path: {}", request.path).as_str());
-
     let device_option = local_device().await;
 
     match device_option {

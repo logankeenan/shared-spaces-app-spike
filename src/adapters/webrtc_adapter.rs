@@ -25,20 +25,15 @@ extern "C" {
 
 pub async fn send_webrtc_message(request: AppRequest, device_id: Uuid) -> AppResponse {
     let value = json!(request);
-    log("before sendSimplePeerMessage");
     let promise: Promise = sendSimplePeerMessage(
         value.to_string().as_str(),
         device_id.to_string().as_str(),
     );
 
-    log("after sendSimplePeerMessage");
 
     let promise_as_future = JsFuture::from(promise);
     let result = promise_as_future.await.unwrap();
-    log("after promise await");
     let response_as_string = result.as_string().unwrap();
-    log("response_as_string");
-    log(response_as_string.as_str());
     let result1: Result<AppResponse, Error> = serde_json::from_str(&response_as_string);
     let app_response = result1.unwrap();
 
@@ -78,7 +73,7 @@ pub fn accept_answer(answer: String, device: Device) {
 
 #[wasm_bindgen]
 pub fn webrtc_on_signal(message: String) {
-    log("webrtc on signal")
+
 }
 
 #[wasm_bindgen]
@@ -101,5 +96,5 @@ pub async fn webrtc_on_connect(device_id_string: String) {
 
 #[wasm_bindgen]
 pub fn webrtc_on_message(message: String) {
-    log("webrtc_on_message")
+
 }

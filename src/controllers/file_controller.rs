@@ -41,7 +41,6 @@ pub async fn files_route(_request: AppRequest) -> AppResponse {
         }
         Some(_) => {
             let mut files:Vec<File> = Vec::new();
-            log("before select_all_connected_device_statuses");
             let device_statuses = select_all_connected_device_statuses().await;
             for device_status in device_statuses {
                 let request = AppRequest {
@@ -49,8 +48,6 @@ pub async fn files_route(_request: AppRequest) -> AppResponse {
                     method: "GET".to_string(),
                     body: "".to_string(),
                 };
-
-                log("before send webrtc message");
 
                 let app_response = send_webrtc_message(
                     request,

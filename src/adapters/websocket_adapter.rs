@@ -17,7 +17,7 @@ extern "C" {
 
 #[wasm_bindgen]
 pub fn websocket_on_open() {
-    log("web socket opened")
+
 }
 
 #[wasm_bindgen]
@@ -30,14 +30,12 @@ pub async fn websocket_on_message(message: String) {
         }
         Err(_) => {
             let string = format!("An error occurred websocket_on_message: {}", message);
-            log(string.as_str());
         },
     }
 }
 
 #[wasm_bindgen]
 pub fn websocket_on_close() {
-    log("web socket closed")
 }
 
 pub fn create_web_socket_connection(url: String) {
