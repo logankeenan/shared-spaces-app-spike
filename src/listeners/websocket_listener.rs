@@ -5,7 +5,7 @@ use crate::adapters::webrtc_adapter::{create_offer, create_answer, accept_answer
 use crate::adapters::websocket_adapter::send_message_via_websocket;
 use uuid::Uuid;
 use wasm_bindgen::__rt::core::str::FromStr;
-use crate::models::device_status::DeviceStatus;
+use crate::models::device_status::{DeviceStatus, DeviceStatusState};
 use wasm_bindgen::__rt::std::time::Instant;
 use crate::repositories::device_status_repository::{insert_device_status, by_device_id, update_device_status};
 
@@ -36,7 +36,8 @@ pub async fn websocket_device_connected_listener(event: AppEvent) {
             let device_status = DeviceStatus {
                 id: Uuid::new_v4(),
                 device_id: device_to_send_offer.id.clone(),
-                is_connected: false
+                state: DeviceStatusState::NotConnected,
+                device: None
             };
             insert_device_status(device_status).await;
         },
@@ -96,7 +97,7 @@ pub async fn web_socket_device_disconnected_listener(event: AppEvent) {
             // this should never happen
         },
         Some(mut device_status) => {
-            device_status.is_connected = false;
+            device_status.state = DeviceStatusState::NotConnected;
 
             update_device_status(device_status).await;
         },

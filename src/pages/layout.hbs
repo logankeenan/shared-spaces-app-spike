@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="#">Shared Space</a>
         <ul class="navbar-nav mr-auto">
@@ -20,8 +20,40 @@
         </ul>
     </div>
 </nav>
+<div class="bg-light">
+    <div class="container">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cloud" width="30" height="30"
+             viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round"
+             stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path d="M7 18a4.6 4.4 0 0 1 0 -9h0a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12"/>
+        </svg>
+        {{#if device_statuses }}
+            {{#each device_statuses}}
+                {{#if (eq this.state "NotConnected") }}
+                    <span title="Not Connected" class="badge badge-pill badge-dark">
 
-<div class="container">
+                        {{this.device.name}}
+                    </span>
+                {{/if}}
+
+                {{#if (eq this.state "Connected") }}
+                    <span title="Connected" class="badge badge-pill badge-success">
+                        {{this.device.name}}
+                    </span>
+                {{/if}}
+
+                {{#if (eq this.state "Connecting") }}
+                    <span title="Connected" class="badge badge-pill badge-warning">
+                        {{this.device.name}}
+                    </span>
+                {{/if}}
+            {{/each}}
+        {{/if}}
+
+    </div>
+</div>
+<div class="container mt-4">
     {{> page_content}}
 </div>
 </body>

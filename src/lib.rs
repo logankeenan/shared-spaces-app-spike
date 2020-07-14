@@ -12,6 +12,7 @@ use regex::Regex;
 use crate::models::app_event::AppEvent;
 use crate::listeners::websocket_listener::{websocket_device_accept_offer_listener, web_socket_device_accept_answer_listener, websocket_device_connected_listener};
 use crate::repositories::device_status_repository::{select_all_device_statuses, update_device_status};
+use crate::models::device_status::DeviceStatusState;
 
 #[macro_use]
 extern crate serde_json;
@@ -55,7 +56,7 @@ pub async fn app_start() {
     let device_statuses = select_all_device_statuses().await;
 
     for mut device_status in device_statuses {
-        device_status.is_connected = false;
+        device_status.state = DeviceStatusState::NotConnected;
 
         update_device_status(device_status).await
     }

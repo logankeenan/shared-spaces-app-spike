@@ -13,18 +13,21 @@ use crate::repositories::device_repository::local_device;
 use crate::models::device::Device;
 use crate::factories::app_response_factory::redirect_app_response;
 use crate::adapters::webrtc_adapter::send_webrtc_message;
-use crate::repositories::device_status_repository::select_all_connected_device_statuses;
+use crate::repositories::device_status_repository::{select_all_connected_device_statuses, select_all_device_statuses};
 use crate::log;
+use crate::models::device_status::DeviceStatus;
+use crate::services::device_status_service::all_device_statuses_include_device;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileListViewModel {
-    files: Vec<File>
+    files: Vec<File>,
+    device_statuses: Vec<DeviceStatus>
 }
 
 pub async fn files_api_route(request: AppRequest) -> AppResponse {
     let files = select_all_files().await;
 
-    let view_model = FileListViewModel { files };
+    let view_model = FileListViewModel { files, device_statuses: vec![] };
     AppResponse {
         status_code: 200.to_string(),
         headers: None,
@@ -41,8 +44,9 @@ pub async fn files_route(_request: AppRequest) -> AppResponse {
         }
         Some(_) => {
             let mut files:Vec<File> = Vec::new();
-            let device_statuses = select_all_connected_device_statuses().await;
-            for device_status in device_statuses {
+            let connected_device_statuses = select_all_connected_device_statuses().await;
+
+            for device_status in connected_device_statuses.clone() {
                 let request = AppRequest {
                     path: "/api/files".to_string(),
                     method: "GET".to_string(),
@@ -53,7 +57,6 @@ pub async fn files_route(_request: AppRequest) -> AppResponse {
                     request,
                     device_status.device_id,
                 ).await;
-
                 let result : Result<FileListViewModel, Error>  = serde_json::from_str(app_response.body.unwrap().as_str());
                 let remote_files = result.unwrap();
                 for file in remote_files.files {
@@ -66,7 +69,8 @@ pub async fn files_route(_request: AppRequest) -> AppResponse {
                 files.push(file)
             }
 
-            let view_model = FileListViewModel { files };
+            let device_statuses = all_device_statuses_include_device().await;
+            let view_model = FileListViewModel { files, device_statuses };
 
             let model = json!(view_model);
 

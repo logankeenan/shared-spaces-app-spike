@@ -7,7 +7,7 @@ use crate::log;
 use uuid::Uuid;
 use wasm_bindgen::__rt::core::str::FromStr;
 use crate::repositories::device_status_repository::{by_device_id, update_device_status};
-use crate::models::device_status::DeviceStatus;
+use crate::models::device_status::{DeviceStatus, DeviceStatusState};
 use crate::models::request::AppRequest;
 use crate::models::response::AppResponse;
 
@@ -88,7 +88,7 @@ pub async fn webrtc_on_connect(device_id_string: String) {
             // This should never occur
         }
         Some(mut device_status) => {
-            device_status.is_connected = true;
+            device_status.state = DeviceStatusState::Connected;
             update_device_status(device_status).await;
         }
     }
