@@ -6,8 +6,10 @@ use crate::adapters::websocket_adapter::send_message_via_websocket;
 use uuid::Uuid;
 use wasm_bindgen::__rt::core::str::FromStr;
 use crate::models::device_status::{DeviceStatus, DeviceStatusState};
+use crate::repositories::device_status_repository;
 use wasm_bindgen::__rt::std::time::Instant;
 use crate::repositories::device_status_repository::{insert_device_status, by_device_id, update_device_status};
+use std::borrow::BorrowMut;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct AcceptOfferBody {
@@ -25,24 +27,11 @@ struct AcceptAnswerBody {
 
 
 pub async fn websocket_device_connected_listener(event: AppEvent) {
-    let device_to_send_offer: Device = serde_json::from_str(event.body.as_str()).unwrap();
+    let mut device_to_send_offer: Device = serde_json::from_str(event.body.as_str()).unwrap();
     let from_device = local_device().await.unwrap();
     let offer = create_offer(device_to_send_offer.clone()).await;
-    let device_to_send_offer_already_exists = device_by_id(device_to_send_offer.id).await;
 
-    match device_to_send_offer_already_exists {
-        None => {
-            insert_device(device_to_send_offer.clone()).await;
-            let device_status = DeviceStatus {
-                id: Uuid::new_v4(),
-                device_id: device_to_send_offer.id.clone(),
-                state: DeviceStatusState::NotConnected,
-                device: None
-            };
-            insert_device_status(device_status).await;
-        },
-        Some(_) => {},
-    }
+    update_or_create_device_and_device_status(device_to_send_offer.borrow_mut()).await;
 
     let body = AcceptOfferBody {
         offer,
@@ -56,11 +45,40 @@ pub async fn websocket_device_connected_listener(event: AppEvent) {
     send_message_via_websocket(json!(app_event).to_string()).await;
 }
 
+async fn update_or_create_device_and_device_status(potentially_new_device: &mut Device) {
+    let device_to_send_offer_already_exists_option = device_by_id(potentially_new_device.id).await;
+
+    match device_to_send_offer_already_exists_option {
+        None => {
+            potentially_new_device.is_local_device = false;
+            insert_device(potentially_new_device.clone()).await;
+
+            let device_status = DeviceStatus {
+                id: Uuid::new_v4(),
+                device_id: potentially_new_device.id,
+                state: DeviceStatusState::NotConnected,
+                device: None,
+            };
+            insert_device_status(device_status).await;
+        }
+        Some(_) => {
+            let mut device_status = device_status_repository::by_device_id(potentially_new_device.id).await.unwrap();
+            device_status.state = DeviceStatusState::Connecting;
+
+            update_device_status(device_status).await;
+        }
+    }
+
+
+}
+
 pub async fn websocket_device_accept_offer_listener(event: AppEvent) {
-    let accept_offer_body: AcceptOfferBody = serde_json::from_str(event.body.as_str()).unwrap();
+    let mut accept_offer_body: AcceptOfferBody = serde_json::from_str(event.body.as_str()).unwrap();
     let local_device = local_device().await.unwrap();
 
     if local_device.id.eq(&accept_offer_body.to_device.id) {
+        update_or_create_device_and_device_status(accept_offer_body.from_device.borrow_mut()).await;
+
         let answer = create_answer(accept_offer_body.clone().from_device, accept_offer_body.clone().offer).await;
 
         let accept_answer_body = AcceptAnswerBody {
@@ -95,12 +113,11 @@ pub async fn web_socket_device_disconnected_listener(event: AppEvent) {
         None => {
 
             // this should never happen
-        },
+        }
         Some(mut device_status) => {
             device_status.state = DeviceStatusState::NotConnected;
 
             update_device_status(device_status).await;
-        },
+        }
     }
-
 }

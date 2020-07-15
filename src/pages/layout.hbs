@@ -4,9 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Shared Space</title>
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+    <style>
+        .overflow-initial {
+            overflow: initial;
+        }
+    </style>
 </head>
 <body>
 
@@ -38,19 +41,20 @@
                 {{/if}}
 
                 {{#if (eq this.state "Connected") }}
-                    <span title="Connected" class="badge badge-pill badge-success">
+                    <span title="Connected"
+                          class="bg-success text-white d-inline-block badge badge-pill">
                         {{this.device.name}}
                     </span>
                 {{/if}}
 
                 {{#if (eq this.state "Connecting") }}
-                    <span title="Connected" class="badge badge-pill badge-warning">
+                    <span title="Connecting"
+                          class="d-inline-block badge badge-pill progress-bar progress-bar-striped progress-bar-animated overflow-initial bg-success">
                         {{this.device.name}}
                     </span>
                 {{/if}}
             {{/each}}
         {{/if}}
-
     </div>
 </div>
 <div class="container mt-4">
