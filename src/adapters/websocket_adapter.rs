@@ -9,7 +9,7 @@ use crate::models::app_event::AppEvent;
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = wsAdapter)]
-    fn create(url: &str);
+    fn create(path: &str);
 
     #[wasm_bindgen(js_namespace = wsAdapter)]
     fn sendMessage(message: &str) -> Promise;
@@ -38,8 +38,8 @@ pub async fn websocket_on_message(message: String) {
 pub fn websocket_on_close() {
 }
 
-pub fn create_web_socket_connection(url: String) {
-    create(url.as_str());
+pub fn create_web_socket_connection(path: String) {
+    create(path.as_str());
 }
 
 pub async fn send_message_via_websocket(message: String) {

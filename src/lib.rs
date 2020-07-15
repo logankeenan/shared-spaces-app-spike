@@ -71,9 +71,9 @@ pub async fn app(request: AppRequest) -> AppResponse {
         Some(device) => {
             let device_name_encoded = percent_encode(device.name.as_bytes(), NON_ALPHANUMERIC);
             // TODO this url really needs to use the correct host/port/protocol
-            let url = format!("ws://localhost:3000/ws?id={}&name={}", device.id.to_string(), device_name_encoded);
+            let path = format!("/ws?id={}&name={}", device.id.to_string(), device_name_encoded);
 
-            create_web_socket_connection(url);
+            create_web_socket_connection(path);
         },
     }
 
