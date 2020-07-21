@@ -6,6 +6,7 @@ pub mod response;
 pub mod device;
 pub mod app_event;
 pub mod device_status;
+pub mod file_part;
 
 pub fn default_uuid() -> Uuid {
     Uuid::new_v4()

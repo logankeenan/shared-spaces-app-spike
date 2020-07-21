@@ -45,16 +45,23 @@ pub async fn json_entities_by_key_prefix(prefix: String) -> Vec<String> {
     let mut vec = Vec::new();
 
     for key in keys_for_file_records {
-        let promise = getItem(&key);
-        let promise_as_future = JsFuture::from(promise);
-        let result = promise_as_future.await.unwrap();
-
-        let json = result.as_string().unwrap();
+        // get_by_id
+        let json = get_by_id(key).await;
 
         vec.push(json)
     }
 
     vec
+}
+
+pub async fn get_by_id(id: String) -> String {
+    let promise = getItem(&id);
+    let promise_as_future = JsFuture::from(promise);
+    let result = promise_as_future.await.unwrap();
+
+    let json = result.as_string().unwrap();
+
+    json
 }
 
 pub async fn insert_json_string(json_string: String, key: String) {

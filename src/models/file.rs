@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct File {
 
     #[serde(default = "crate::models::default_uuid")]

@@ -17,6 +17,7 @@ use crate::repositories::device_status_repository::{select_all_connected_device_
 use crate::log;
 use crate::models::device_status::DeviceStatus;
 use crate::services::device_status_service::all_device_statuses_include_device;
+use crate::services::file_service::save_file;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileListViewModel {
@@ -96,7 +97,8 @@ struct FileForm {
 pub async fn file_create_route(_request: AppRequest) -> AppResponse {
     let result: FileForm = serde_json::from_str(_request.body.as_str()).unwrap();
 
-    insert_file(result.file).await;
+
+    save_file(result.file).await;
 
     redirect_app_response("/files".to_string())
 }

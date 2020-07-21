@@ -44,14 +44,8 @@
                 var elementById = document.getElementById('imagePreview');
                 var fileLocation = elementById.dataset.fileLocation;
 
-                localforage.getItem(fileLocation).then(function (blob) {
-                    var reader = new FileReader();
-
-                    reader.onload = function () {
-                        elementById.src = reader.result;
-                    }
-
-                    reader.readAsDataURL(blob);
+                localforage.getItem(fileLocation).then(function (dataUrl) {
+                    elementById.src = dataUrl;
                 });
             })();
         </script>
