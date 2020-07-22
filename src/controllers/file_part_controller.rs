@@ -12,13 +12,12 @@ struct FilePartsViewModel {
     data: Vec<FilePart>
 }
 
-fn file_id_path_param(request: Request) -> Uuid {
+fn file_id_path_param(request: AppRequest) -> Uuid {
     let captures = file_parts_api_route_regex().captures(request.path.as_str()).unwrap();
-    let captures = re.captures(request.path.as_str()).unwrap();
 
     let file_id_as_string = captures.name("file_parts").unwrap().as_str().to_string();
 
-    Uuid::from_str(file_id_as_string).unwrap()
+    Uuid::from_str(&file_id_as_string).unwrap()
 }
 
 pub fn file_parts_api_route_regex() -> Regex {

@@ -79,7 +79,8 @@ pub async fn app(request: AppRequest) -> AppResponse {
     }
 
     if file_parts_api_route_regex().is_match(request.path.as_str()) {
-        return file_parts_api_route(request);
+        let route = file_parts_api_route(request).await;
+        return route;
     }
 
     if request.path == "/api/files" {
