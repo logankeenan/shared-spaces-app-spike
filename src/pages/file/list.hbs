@@ -41,7 +41,17 @@
                             {{file.last_modified}}
                         </td>
                         <td>
-                            <a href="#/files/{{file.id}}">View</a>
+                            {{#if (eq file.download_status "Downloaded") }}
+                                <a href="#/files/{{file.id}}">View</a>
+                            {{/if}}
+
+                            {{#if (eq file.download_status "Downloading") }}
+                                <a href="#/files/{{file.id}}/download">Download</a>
+                            {{/if}}
+
+                            {{#if (eq file.download_status "NotDownloaded") }}
+                                <a href="#/files/{{file.id}}/download">Download</a>
+                            {{/if}}
                         </td>
                     </tr>
                 {{/each}}
@@ -50,7 +60,11 @@
         </div>
         <script>
             setTimeout(function () {
-                window.process_current_page()
+
+                if (window.location.hash === "#/files") {
+                    window.load_page("/files")
+                }
+
             }, 5000);
         </script>
     {{/inline}}

@@ -1,4 +1,4 @@
-#![type_length_limit="1104603"]
+#![type_length_limit="1145163"]
 // TODO the above statement fixes the issue below. This seems bad, but i'll figure it out later.
 //  note: consider adding a `#![type_length_limit="1104603"]` attribute to your crate
 
@@ -70,6 +70,8 @@ pub async fn app_start() {
 
 #[wasm_bindgen]
 pub async fn app(request: AppRequest) -> AppResponse {
+    // log(format!("request.path: {}", request.path).as_str());
+
     let device_option = local_device().await;
 
     match device_option {
@@ -85,6 +87,7 @@ pub async fn app(request: AppRequest) -> AppResponse {
 
     if file_parts_api_route_regex().is_match(request.path.as_str()) {
         let route = file_parts_api_route(request).await;
+
         return route;
     }
 
@@ -130,7 +133,7 @@ pub async fn app(request: AppRequest) -> AppResponse {
     }
 
     AppResponse {
-        status_code: "".to_string(),
+        status_code: "404".to_string(),
         headers: Default::default(),
         body: None,
     }

@@ -2,6 +2,7 @@ use crate::adapters::localforage_adapter::{insert_by_id, json_entities_by_key_pr
 use crate::models::file_part::FilePart;
 use uuid::Uuid;
 use serde_json::Error;
+use crate::log;
 
 pub async fn insert_file_part(file_part: FilePart) {
     let file_part_as_json = serde_json::to_string(&file_part).unwrap();

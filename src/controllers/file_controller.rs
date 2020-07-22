@@ -21,6 +21,8 @@ use crate::services::file_service::save_file;
 use regex::Regex;
 use crate::controllers::file_part_controller::{FilePartsViewModel, FilePartsContentViewModel};
 use crate::adapters::localforage_adapter::insert_by_id;
+use crate::models::file::FileDownloadStatus::NotDownloaded;
+use crate::models::file_part::FilePart;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileListViewModel {
@@ -47,7 +49,7 @@ pub async fn files_route(_request: AppRequest) -> AppResponse {
             redirect_app_response("/devices/create".to_string())
         }
         Some(_) => {
-            let mut files: Vec<File> = Vec::new();
+            let mut local_files = select_all_files().await;
             let connected_device_statuses = select_all_connected_device_statuses().await;
 
             for device_status in connected_device_statuses.clone() {
@@ -63,19 +65,26 @@ pub async fn files_route(_request: AppRequest) -> AppResponse {
                 ).await;
                 let result: Result<FileListViewModel, Error> = serde_json::from_str(app_response.body.unwrap().as_str());
                 let remote_files = result.unwrap();
+
                 for mut file in remote_files.files {
-                    file.created_by_device_id = device_status.device_id;
-                    insert_file(file).await
+                    let existing_file = local_files.clone().into_iter().find(|local_file| {
+                        local_file.id.eq(&file.id)
+                    });
+
+                    match existing_file {
+                        None => {
+                            file.created_by_device_id = device_status.device_id;
+                            file.download_status = NotDownloaded;
+                            insert_file(file.clone()).await;
+                            local_files.push(file);
+                        }
+                        Some(_) => {}
+                    }
                 }
             }
 
-            let local_files = select_all_files().await;
-            for file in local_files {
-                files.push(file)
-            }
-
             let device_statuses = all_device_statuses_include_device().await;
-            let view_model = FileListViewModel { files, device_statuses };
+            let view_model = FileListViewModel { files: local_files, device_statuses };
 
             let model = json!(view_model);
 
@@ -133,27 +142,24 @@ pub async fn file_details_route(request: AppRequest) -> AppResponse {
 fn file_id_path_param(request: AppRequest) -> Uuid {
     let captures = file_download_route_regex().captures(request.path.as_str()).unwrap();
 
-    let file_id_as_string = captures.name("file_part_id").unwrap().as_str().to_string();
+    let file_id_as_string = captures.name("file_id").unwrap().as_str().to_string();
 
     Uuid::from_str(&file_id_as_string).unwrap()
 }
 
 pub fn file_download_route_regex() -> Regex {
-    Regex::new(r"/api/files/(?P<file_id>.*)/download").unwrap()
+    Regex::new(r"/files/(?P<file_id>.*)/download").unwrap()
 }
 
 pub async fn file_download_route(request: AppRequest) -> AppResponse {
     let file_id = file_id_path_param(request);
-
     let mut file = file_by_id(file_id).await;
     let created_by_device_id = file.created_by_device_id.clone();
     let file_location = file.location.clone();
-
     let mut file_update_download_status = file.clone();
     file_update_download_status.download_status = FileDownloadStatus::Downloading;
 
     update_file(file_update_download_status).await;
-
     let file_parts_app_request = AppRequest {
         path: format!("/api/files/{}/file-parts", file_id.to_string()),
         method: "GET".to_string(),
@@ -167,15 +173,18 @@ pub async fn file_download_route(request: AppRequest) -> AppResponse {
 
     let result: Result<FilePartsViewModel, Error> = serde_json::from_str(app_response.body.unwrap().as_str());
     let file_parts_view_model = result.unwrap();
-
     let mut file_as_string: String = "".to_string();
-    for file_part in file_parts_view_model.data {
+
+    let mut file_parts = file_parts_view_model.data;
+    file_parts.sort_by_key(|a| a.order);
+
+
+    for file_part in file_parts {
         let file_part_content_request = AppRequest {
-            path: format!("/api/file_parts/{}/content", file_part.id),
+            path: format!("/api/file-parts/{}/content", file_part.id),
             method: "GET".to_string(),
             body: "".to_string(),
         };
-
 
         let app_response = send_webrtc_message(
             file_part_content_request,
@@ -188,15 +197,11 @@ pub async fn file_download_route(request: AppRequest) -> AppResponse {
         file_as_string.push_str(file_parts_view_model.data.as_str());
     }
 
-    insert_by_id(file_as_string.to_string(), file_location);
+    insert_by_id(file_as_string.to_string(), file_location).await;
 
     file.download_status = FileDownloadStatus::Downloaded;
     update_file(file.clone()).await;
 
-    AppResponse {
-        status_code: "201".to_string(),
-        headers: None,
-        body: None,
-    }
+    redirect_app_response("/files".to_string())
 }
 

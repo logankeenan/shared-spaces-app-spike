@@ -2,7 +2,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::__rt::std::collections::HashMap;
 
 #[wasm_bindgen]
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct AppResponse {
     pub(crate) status_code: String,
     pub(crate) headers: Option<String>,
