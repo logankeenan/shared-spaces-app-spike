@@ -1,6 +1,8 @@
+#![type_length_limit="1053483"]
+
 use wasm_bindgen::prelude::*;
 use crate::models::request::AppRequest;
-use crate::controllers::file_controller::{files_route, file_create_route, file_details_route, files_api_route};
+use crate::controllers::file_controller::{files_route, file_create_route, file_details_route, files_api_route, file_download_route_regex, file_download_route};
 use crate::models::response::AppResponse;
 use crate::controllers::device_controller::{create_device_route, save_device_route};
 use crate::adapters::websocket_adapter::{create_web_socket_connection, send_message_via_websocket};
@@ -85,6 +87,11 @@ pub async fn app(request: AppRequest) -> AppResponse {
 
     if file_part_content_route_regex().is_match(request.path.as_str()) {
         let route = file_part_content_route(request).await;
+        return route;
+    }
+
+    if file_download_route_regex().is_match(request.path.as_str()) {
+        let route = file_download_route(request).await;
         return route;
     }
 

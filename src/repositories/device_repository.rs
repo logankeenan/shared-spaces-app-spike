@@ -2,13 +2,13 @@ use crate::models::device::Device;
 use uuid::Uuid;
 use serde_json::Error;
 use crate::log;
-use crate::adapters::localforage_adapter::{insert_json_string, json_entities_by_key_prefix};
+use crate::adapters::localforage_adapter::{insert_by_id, json_entities_by_key_prefix};
 
 pub async fn insert_device(device: Device) {
     let device_as_json = serde_json::to_string(&device).unwrap();
     let key = format!("device:{}", device.id.to_string());
 
-    insert_json_string(device_as_json.to_string(), key.to_string()).await;
+    insert_by_id(device_as_json.to_string(), key.to_string()).await;
 }
 
 pub async fn device_by_id(id: Uuid) -> Option<Device> {

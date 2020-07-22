@@ -64,8 +64,8 @@ pub async fn get_by_id(id: String) -> String {
     json
 }
 
-pub async fn insert_json_string(json_string: String, key: String) {
-    let promise: Promise = setItem(key.as_str(), json_string.as_str());
+pub async fn insert_by_id(string_data: String, id: String) {
+    let promise: Promise = setItem(id.as_str(), string_data.as_str());
     let promise_as_future = JsFuture::from(promise);
     promise_as_future.await;
 }

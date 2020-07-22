@@ -1,4 +1,4 @@
-use crate::adapters::localforage_adapter::{insert_json_string, json_entities_by_key_prefix, get_by_id};
+use crate::adapters::localforage_adapter::{insert_by_id, json_entities_by_key_prefix, get_by_id};
 use crate::models::file_part::FilePart;
 use uuid::Uuid;
 use serde_json::Error;
@@ -7,7 +7,7 @@ pub async fn insert_file_part(file_part: FilePart) {
     let file_part_as_json = serde_json::to_string(&file_part).unwrap();
     let key = format!("file_part:{}", file_part.id.to_string());
 
-    insert_json_string(file_part_as_json.to_string(), key.to_string()).await;
+    insert_by_id(file_part_as_json.to_string(), key.to_string()).await;
 }
 
 pub async fn select_all_file_parts_by_file_id(file_id: Uuid) -> Vec<FilePart> {

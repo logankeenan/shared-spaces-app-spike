@@ -11,7 +11,7 @@ use crate::services::file_location_service::read_file_contents;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FilePartsViewModel {
-    data: Vec<FilePart>
+    pub data: Vec<FilePart>
 }
 
 fn file_id_path_param(request: AppRequest) -> Uuid {
@@ -55,8 +55,8 @@ pub fn file_part_content_route_regex() -> Regex {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct FilePartsContentViewModel {
-    data: String
+pub struct FilePartsContentViewModel {
+    pub data: String
 }
 
 pub async fn file_part_content_route(request: AppRequest) -> AppResponse {
