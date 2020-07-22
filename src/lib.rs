@@ -13,7 +13,7 @@ use crate::models::app_event::AppEvent;
 use crate::listeners::websocket_listener::{websocket_device_accept_offer_listener, web_socket_device_accept_answer_listener, websocket_device_connected_listener};
 use crate::repositories::device_status_repository::{select_all_device_statuses, update_device_status};
 use crate::models::device_status::DeviceStatusState;
-use crate::controllers::file_part_controller::{file_parts_api_route_regex, file_parts_api_route};
+use crate::controllers::file_part_controller::{file_parts_api_route_regex, file_parts_api_route, file_part_content_route_regex, file_part_content_route};
 
 #[macro_use]
 extern crate serde_json;
@@ -80,6 +80,11 @@ pub async fn app(request: AppRequest) -> AppResponse {
 
     if file_parts_api_route_regex().is_match(request.path.as_str()) {
         let route = file_parts_api_route(request).await;
+        return route;
+    }
+
+    if file_part_content_route_regex().is_match(request.path.as_str()) {
+        let route = file_part_content_route(request).await;
         return route;
     }
 
