@@ -10,7 +10,7 @@ use crate::services::file_location_service::read_file_contents;
 
 
 #[derive(Debug, Serialize, Deserialize)]
-struct FilePartsViewModel {
+pub struct FilePartsViewModel {
     data: Vec<FilePart>
 }
 

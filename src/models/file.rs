@@ -11,4 +11,6 @@ pub struct File {
     pub size: i32,
     pub file_type: String,
     pub location: String,
+    #[serde(default = "crate::models::default_uuid")]
+    pub created_by_device_id: Uuid
 }

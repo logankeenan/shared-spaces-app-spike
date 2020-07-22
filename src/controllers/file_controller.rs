@@ -18,11 +18,13 @@ use crate::log;
 use crate::models::device_status::DeviceStatus;
 use crate::services::device_status_service::all_device_statuses_include_device;
 use crate::services::file_service::save_file;
+use regex::Regex;
+use crate::controllers::file_part_controller::FilePartsViewModel;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct FileListViewModel {
     files: Vec<File>,
-    device_statuses: Vec<DeviceStatus>
+    device_statuses: Vec<DeviceStatus>,
 }
 
 pub async fn files_api_route(request: AppRequest) -> AppResponse {
@@ -60,8 +62,9 @@ pub async fn files_route(_request: AppRequest) -> AppResponse {
                 ).await;
                 let result : Result<FileListViewModel, Error>  = serde_json::from_str(app_response.body.unwrap().as_str());
                 let remote_files = result.unwrap();
-                for file in remote_files.files {
-                    files.push(file)
+                for mut file in remote_files.files {
+                    file.created_by_device_id = device_status.device_id;
+                    insert_file(file).await
                 }
             }
 
@@ -95,8 +98,10 @@ struct FileForm {
 // TODO add controller method to handle the file
 //  This should take in the file and save the file to storage
 pub async fn file_create_route(_request: AppRequest) -> AppResponse {
-    let result: FileForm = serde_json::from_str(_request.body.as_str()).unwrap();
+    let mut result: FileForm = serde_json::from_str(_request.body.as_str()).unwrap();
+    let local_device = local_device().await.unwrap();
 
+    result.file.created_by_device_id = local_device.id;
 
     save_file(result.file).await;
 
@@ -122,4 +127,37 @@ pub async fn file_details_route(request: AppRequest) -> AppResponse {
         body: Some(markup),
     }
 }
+
+// fn file_id_path_param(request: AppRequest) -> Uuid {
+//     let captures = file_download_route_regex().captures(request.path.as_str()).unwrap();
+//
+//     let file_id_as_string = captures.name("file_part_id").unwrap().as_str().to_string();
+//
+//     Uuid::from_str(&file_id_as_string).unwrap()
+// }
+//
+// pub fn file_download_route_regex() -> Regex {
+//     Regex::new(r"/api/files/(?P<file_id>.*)/download").unwrap()
+// }
+//
+// pub async fn file_download_route(request: AppRequest) {
+//     let file_id = file_id_path_param(request);
+//
+//     let file = file_by_id(file_id).await;
+//
+//     let file_parts_app_request = AppRequest {
+//         path: format!("/api/files/{}/file-parts", file_id.to_string()),
+//         method: "GET".to_string(),
+//         body: "".to_string()
+//     };
+//
+//     let app_response = send_webrtc_message(
+//         file_parts_app_request,
+//         file
+//     ).await;
+//     let result : Result<FilePartsViewModel, Error>  = serde_json::from_str(app_response.body.unwrap().as_str());
+//     let file_parts_view_model = result.unwrap();
+//
+//
+// }
 
