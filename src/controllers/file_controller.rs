@@ -2,9 +2,9 @@ use crate::models::request::AppRequest;
 use handlebars::{Handlebars, TemplateRenderError};
 use wasm_bindgen::__rt::std::alloc::handle_alloc_error;
 use crate::factories::template_factory::render;
-use crate::models::file::File;
+use crate::models::file::{File, FileDownloadStatus};
 use serde_json::Error;
-use crate::repositories::file_repository::{insert_file, select_all_files, file_by_id};
+use crate::repositories::file_repository::{insert_file, select_all_files, file_by_id, update_file};
 use uuid::Uuid;
 use crate::models::response::AppResponse;
 use wasm_bindgen::__rt::std::collections::HashMap;
@@ -103,6 +103,7 @@ pub async fn file_create_route(_request: AppRequest) -> AppResponse {
     let local_device = local_device().await.unwrap();
 
     result.file.created_by_device_id = local_device.id;
+    result.file.download_status = FileDownloadStatus::Downloaded;
 
     save_file(result.file).await;
 
@@ -144,7 +145,14 @@ pub fn file_download_route_regex() -> Regex {
 pub async fn file_download_route(request: AppRequest) -> AppResponse {
     let file_id = file_id_path_param(request);
 
-    let file = file_by_id(file_id).await;
+    let mut file = file_by_id(file_id).await;
+    let created_by_device_id = file.created_by_device_id.clone();
+    let file_location = file.location.clone();
+
+    let mut file_update_download_status = file.clone();
+    file_update_download_status.download_status = FileDownloadStatus::Downloading;
+
+    update_file(file_update_download_status).await;
 
     let file_parts_app_request = AppRequest {
         path: format!("/api/files/{}/file-parts", file_id.to_string()),
@@ -154,7 +162,7 @@ pub async fn file_download_route(request: AppRequest) -> AppResponse {
 
     let app_response = send_webrtc_message(
         file_parts_app_request,
-        file.created_by_device_id,
+        created_by_device_id,
     ).await;
 
     let result: Result<FilePartsViewModel, Error> = serde_json::from_str(app_response.body.unwrap().as_str());
@@ -168,9 +176,10 @@ pub async fn file_download_route(request: AppRequest) -> AppResponse {
             body: "".to_string(),
         };
 
+
         let app_response = send_webrtc_message(
             file_part_content_request,
-            file.created_by_device_id,
+            created_by_device_id,
         ).await;
 
         let result: Result<FilePartsContentViewModel, Error> = serde_json::from_str(app_response.body.unwrap().as_str());
@@ -179,7 +188,10 @@ pub async fn file_download_route(request: AppRequest) -> AppResponse {
         file_as_string.push_str(file_parts_view_model.data.as_str());
     }
 
-    insert_by_id(file_as_string.to_string(), file.location);
+    insert_by_id(file_as_string.to_string(), file_location);
+
+    file.download_status = FileDownloadStatus::Downloaded;
+    update_file(file.clone()).await;
 
     AppResponse {
         status_code: "201".to_string(),

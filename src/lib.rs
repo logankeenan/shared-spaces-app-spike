@@ -1,4 +1,7 @@
-#![type_length_limit="1053483"]
+#![type_length_limit="1104603"]
+// TODO the above statement fixes the issue below. This seems bad, but i'll figure it out later.
+//  note: consider adding a `#![type_length_limit="1104603"]` attribute to your crate
+
 
 use wasm_bindgen::prelude::*;
 use crate::models::request::AppRequest;

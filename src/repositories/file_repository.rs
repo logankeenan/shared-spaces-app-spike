@@ -37,3 +37,7 @@ pub async fn select_all_files() -> Vec<File> {
 
     vec
 }
+
+pub async fn update_file(file: File) {
+    insert_file(file).await;
+}
