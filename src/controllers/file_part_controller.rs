@@ -3,7 +3,7 @@ use regex::Regex;
 use uuid::Uuid;
 use std::str::FromStr;
 use crate::repositories::file_part_repository::{select_all_file_parts_by_file_id, file_part_by_id};
-use crate::models::file_part::FilePart;
+use crate::models::file_part::{FilePart, FILE_PART_OFFSET};
 use crate::models::response::AppResponse;
 use crate::repositories::file_repository::file_by_id;
 use crate::services::file_location_service::read_file_contents;
@@ -65,14 +65,13 @@ pub async fn file_part_content_route(request: AppRequest) -> AppResponse {
     let file_part = file_part_by_id(file_part_id).await;
     let file = file_by_id(file_part.file_id).await;
     let file_contents = read_file_contents(file).await;
-    let offset = 31999;
-    let starting_position = offset * file_part.order as usize;
+    let starting_position = FILE_PART_OFFSET * file_part.order as usize;
 
     let mut file_part_content = "";
-    if starting_position + offset > file_contents.len() {
+    if starting_position + FILE_PART_OFFSET > file_contents.len() {
         file_part_content = &file_contents[starting_position..];
     } else {
-        file_part_content = &file_contents[starting_position..starting_position + offset]
+        file_part_content = &file_contents[starting_position..starting_position + FILE_PART_OFFSET]
     }
 
     let model = FilePartsContentViewModel {

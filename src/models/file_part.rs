@@ -6,5 +6,7 @@ pub struct FilePart {
     pub id: Uuid,
     pub order: i64,
     pub file_id: Uuid,
-    pub md5_hash: String
+    pub md5_hash: String,
 }
+
+pub static FILE_PART_OFFSET: usize = 512000;
