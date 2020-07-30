@@ -9,4 +9,4 @@ pub struct FilePart {
     pub md5_hash: String,
 }
 
-pub static FILE_PART_OFFSET: usize = 512000;
+pub static FILE_PART_OFFSET: usize = 256000;
