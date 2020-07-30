@@ -16,7 +16,7 @@
                 </form>
             </div>
         </div>
-
+        <a background href="#whatever">what</a>
 
         <div class="container">
             <table class="table">
@@ -46,11 +46,11 @@
                             {{/if}}
 
                             {{#if (eq file.download_status "Downloading") }}
-                                <a href="#/files/{{file.id}}/download">Download</a>
+                                <a href="#/files/{{file.id}}/download">Downloading...</a>
                             {{/if}}
 
                             {{#if (eq file.download_status "NotDownloaded") }}
-                                <a href="#/files/{{file.id}}/download">Download</a>
+                                <a background href="#/files/{{file.id}}/download">Download</a>
                             {{/if}}
                         </td>
                     </tr>
