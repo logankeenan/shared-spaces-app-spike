@@ -1660,7 +1660,7 @@ dependencies = [
 
 [[package]]
 name = "shared-spaces-app"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "handlebars 3.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "js-sys 0.3.41 (registry+https://github.com/rust-lang/crates.io-index)",
