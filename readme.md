@@ -2,9 +2,7 @@
 
 This is a POC I created back in 2020. It's an app that allows users to share files P2P in-browser via WebRTC.
 
-It has two parts, this repo is the in-browser Rust app that compiles to WASM
-and [shares-spaces-server-spike](https://github.com/logankeenan/shared-spaces-server-spike) is
-for basic account creation and a websocket server to establish a P2P connection.
+See [Past Rust Experiments: Positivelys & Shared Spaces](https://logankeenan.com/posts/past-rust-experiments-positivelys-and-shared-spaces/) for more details
 
 ## Experiments
 
